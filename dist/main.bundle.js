@@ -40109,8 +40109,8 @@ var ChatService = (function () {
     function ChatService() {
         this.url = 'http://localhost:8000';
     }
-    ChatService.prototype.sendMessage = function (message) {
-        this.socket.emit('add-message', message);
+    ChatService.prototype.sendMessage = function (message, username) {
+        this.socket.emit('add-message', message, username);
     };
     ChatService.prototype.getMessages = function () {
         var _this = this;
@@ -40124,6 +40124,13 @@ var ChatService = (function () {
             };
         });
         return observable;
+    };
+    ChatService.prototype.getUsername = function () {
+        return sessionStorage.getItem('username');
+    };
+    ChatService.prototype.setUsername = function (username) {
+        console.log(username);
+        sessionStorage.setItem('username', username);
     };
     ChatService = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["d" /* Injectable */])(), 
@@ -54418,9 +54425,10 @@ var ChatComponent = (function () {
     function ChatComponent(_chatService) {
         this._chatService = _chatService;
         this.messages = [];
+        this.alert = false;
     }
     ChatComponent.prototype.sendMessage = function () {
-        this._chatService.sendMessage(this.message);
+        this._chatService.sendMessage(this.message, this.username);
         this.message = '';
     };
     ChatComponent.prototype.ngOnInit = function () {
@@ -54432,6 +54440,10 @@ var ChatComponent = (function () {
     };
     ChatComponent.prototype.ngOnDestroy = function () {
         this.connection.unsubscribe();
+    };
+    ChatComponent.prototype.setUsername = function () {
+        this._chatService.setUsername(this.username);
+        this.alert = 'username is set';
     };
     ChatComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__angular_core__["F" /* Component */])({
@@ -60801,7 +60813,7 @@ module.exports = "<chat></chat>"
 /* 629 */
 /***/ function(module, exports) {
 
-module.exports = "<input type=\"text\" placeholder=\"Enter Message...\" [(ngModel)]=\"message\" name=\"message\" (keyup.enter)=\"sendMessage()\">\n<br>\n\n<div *ngFor=\"let message of messages\">{{message.text}}</div>"
+module.exports = "<div>\n    <label>Username: </label>\n    <input type=\"text\" [(ngModel)]=\"username\" name=\"username\">\n    <br>\n    <button (click)=\"setUsername()\">Submit</button>\n</div>\n\n<div *ngIf=\"username\">\n<input type=\"text\" placeholder=\"Enter Message...\" [(ngModel)]=\"message\" name=\"message\" (keyup.enter)=\"sendMessage()\">\n<br>\n\n<div *ngFor=\"let message of messages\"><strong>{{message.username}}: </strong>{{message.text}}</div>\n</div>"
 
 /***/ },
 /* 630 */
